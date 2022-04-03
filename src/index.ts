@@ -1,5 +1,6 @@
 import { Repository } from "typeorm";
 import { AppDataSource } from "./data-source";
+import { Album } from "./entity/Album";
 import { Photo } from "./entity/Photo";
 import { PhotoMetadata } from "./entity/PhotoMetadata";
 import { User } from "./entity/User";
@@ -25,32 +26,90 @@ AppDataSource.initialize()
     // photo.filename = "photos";
     // photo.views = 2;
     // photo.isPublished = true;
-
     // create a photo
+    // const photo = new Photo();
+    // photo.name = "Me and Bears";
+    // photo.description = "I am near polar bears";
+    // photo.filename = "photo-with-bears.jpg";
+    // photo.isPublished = true;
+    // photo.views = 10;
+    // // create photo metadata object
+    // const metadata = new PhotoMetadata();
+    // metadata.height = 640;
+    // metadata.width = 480;
+    // metadata.compressed = true;
+    // metadata.comment = "cybershoot";
+    // metadata.orientation = "portrait";
+    // photo.metadata = metadata;
+    // const photoRepository = AppDataSource.getRepository(Photo);
+    // await photoRepository.save(photo);
+    // console.log(`success`);
+    // const photoRepository = AppDataSource.getRepository(Photo);
+    // const photo = await photoRepository.findOneByOrFail({ relations: { metadata: true } });
+    // console.log(`photo : `, photo);
+    // const photo = await AppDataSource.getRepository(Photo)
+    //   .createQueryBuilder()
+    //   .leftJoinAndSelect("Photo.metadata", "meta")
+    //   .getOne();
+    // console.log(photo);
+    // const photo = new Photo();
+    // photo.name = "Me and Bears";
+    // photo.description = "I am 니얼더 polar bears";
+    // photo.filename = "photo-with-베얼스.jpg";
+    // photo.isPublished = true;
+    // photo.views = 100;
+    // const metadata = new PhotoMetadata();
+    // metadata.height = 640;
+    // metadata.width = 480;
+    // metadata.compressed = false;
+    // metadata.comment = "커멘트";
+    // metadata.orientation = "포트 포톨링요";
+    // photo.metadata = metadata;
+    // // metadata.photo = photo;
+    // const medataRepository = AppDataSource.getRepository(PhotoMetadata);
+    // await medataRepository.save(metadata);
+    // console.log(metadata);
+    // const photoRepository = AppDataSource.getRepository(Photo);
+    // await photoRepository.save(photo);
+    // console.log(photoRepository);
+
+    const album1: Album = new Album();
+    album1.name = "Bears";
+    await AppDataSource.manager.save(album1);
+
+    const album2: Album = new Album();
+    album2.name = "Me";
+    await AppDataSource.manager.save(album2);
+
     const photo = new Photo();
     photo.name = "Me and Bears";
     photo.description = "I am near polar bears";
     photo.filename = "photo-with-bears.jpg";
-    photo.views = 1;
+    photo.views = 101;
     photo.isPublished = true;
+    photo.albums = [album1, album2];
 
-    const metadata: PhotoMetadata = new PhotoMetadata();
-    metadata.height = 640;
-    metadata.width = 480;
-    metadata.compressed = true;
-    metadata.comment = "cybershoot";
-    metadata.orientation = "portrait";
-    metadata.photo = photo; // this way we connect them
+    await AppDataSource.manager.save(photo);
 
-    // get entity repositories
-    const photoRepository = AppDataSource.getRepository(Photo);
-    const metadataRepository = AppDataSource.getRepository(PhotoMetadata);
+    // const loadedPhoto: Photo = await AppDataSource.getRepository(Photo).findOne(
+    //   {
+    //     where: { id: 15 },
+    //     relations: { albums: true },
+    //   }
+    // );
 
-    console.log(metadataRepository);
-    // first we should save a photo
-    await photoRepository.save(photo);
+    const photos = await AppDataSource.getRepository(Photo)
+      .createQueryBuilder("photo") // first argument is an alias. Alias is what you are selecting - photos. You must specify it.
+      .innerJoinAndSelect("photo.metadata", "metadata")
+      .leftJoinAndSelect("photo.albums", "album")
+      .where("photo.isPublished = true")
+      .andWhere("(photo.name = :photoName OR photo.name = :bearName)")
+      .orderBy("photo.id", "DESC")
+      .skip(5)
+      .take(10)
+      .setParameters({ photoName: "Me and Bears", bearName: "Mishka" })
+      .getMany();
 
-    // photo is saved. Now we need to save a photo metadata
-    await metadataRepository.save(metadata);
+    console.log(photos);
   })
-  .catch((error) => console.log(error.message));
+  .catch((error) => console.log("error : ", error.message));

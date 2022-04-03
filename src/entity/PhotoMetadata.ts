@@ -4,6 +4,9 @@ import {
   PrimaryGeneratedColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
+  Relation,
+  CreateDateColumn,
 } from "typeorm";
 import { Photo } from "./Photo";
 
@@ -27,7 +30,10 @@ export class PhotoMetadata {
   @Column()
   comment: string;
 
-  @OneToOne(() => Photo)
+  @OneToOne(() => Photo, (photo) => photo.metadata)
   @JoinColumn()
-  photo: Photo;
+  photo: Relation<Photo>;
+
+  @CreateDateColumn()
+  createAt: Date;
 }
