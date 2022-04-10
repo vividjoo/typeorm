@@ -23,3 +23,9 @@ To do
 - Transcation
 - QueryBuilder
   ``
+
+``
+계획
+
+- TypeORM 공식문서 기반 개발 강의 만들기
+  ``
