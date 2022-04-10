@@ -1,7 +1,10 @@
+import { PhotoMetadata } from "./entity/PhotoMetadata";
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { Photo } from "./entity/Photo";
 import { User } from "./entity/User";
+import { Author } from "./entity/Author";
+import { Album } from "./entity/Album";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -12,7 +15,7 @@ export const AppDataSource = new DataSource({
   database: "typeorm",
   synchronize: true,
   logging: false,
-  entities: [User, Photo],
+  entities: [User, Photo, PhotoMetadata, Author, Album],
   migrations: [],
   subscribers: [],
 });
@@ -22,4 +25,4 @@ AppDataSource.initialize()
     // here you can start to work with your database
     console.log(`AppDataSource ini!`);
   })
-  .catch((error) => console.log(error));
+  .catch((error) => console.log("error : ", error));
