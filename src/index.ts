@@ -100,8 +100,9 @@ AppDataSource.initialize()
 
     const photos = await AppDataSource.getRepository(Photo)
       .createQueryBuilder("photo") // first argument is an alias. Alias is what you are selecting - photos. You must specify it.
-      .innerJoinAndSelect("photo.metadata", "metadata")
+      .innerJoinAndSelect("photo.metadata", "meta")
       .leftJoinAndSelect("photo.albums", "album")
+      .leftJoinAndSelect("photo.author", "author")
       .where("photo.isPublished = true")
       .andWhere("(photo.name = :photoName OR photo.name = :bearName)")
       .orderBy("photo.id", "DESC")
@@ -113,3 +114,4 @@ AppDataSource.initialize()
     console.log(photos);
   })
   .catch((error) => console.log("error : ", error.message));
+ 
